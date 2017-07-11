@@ -40,6 +40,7 @@ export class ReactNativeModal extends Component {
     onModalShow: () => null,
     onModalHide: () => null,
     isVisible: false,
+      forceOpen: false,
     hideOnBack: true,
     onBackButtonPress: () => null,
   };
@@ -110,7 +111,8 @@ export class ReactNativeModal extends Component {
     });
   };
 
-  _close = async () => {
+    _close = async () => {
+        if(this.props.forceOpen) return;
     this.backdropRef.transitionTo({ opacity: 0 }, this.props.backdropTransitionOutTiming);
     this.contentRef[this.props.animationOut](this.props.animationOutTiming).then(() => {
       this.setState({ isVisible: false });
