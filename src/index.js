@@ -50,13 +50,16 @@ export class ReactNativeModal extends Component {
   // We also store in the state the device width and height so that we can update the modal on
   // device rotation.
   state = {
-    isVisible: false,
+      isVisible: false,
+      forceOpen: false,
     deviceWidth: Dimensions.get('window').width,
     deviceHeight: Dimensions.get('window').height,
   };
 
   componentWillReceiveProps(nextProps) {
-    if (!this.state.isVisible && nextProps.isVisible) {
+      if(nextProps.forceOpen)
+          this.setState({isVisible: true, forceOpen: true});
+      else if (!this.state.isVisible && nextProps.isVisible) {
       this.setState({ isVisible: true });
     }
   }
@@ -75,8 +78,12 @@ export class ReactNativeModal extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+      if(this.props.forceOpen)
+      {
+          this._open();
+      }
     // On modal open request, we slide the view up and fade in the backdrop
-    if (this.state.isVisible && !prevState.isVisible) {
+      else if (this.state.isVisible && !prevState.isVisible) {
       this._open();
       // On modal close request, we slide the view down and fade out the backdrop
     } else if (!this.props.isVisible && prevProps.isVisible) {
@@ -99,8 +106,7 @@ export class ReactNativeModal extends Component {
       this.props.backdropTransitionInTiming,
     );
     this.contentRef[this.props.animationIn](this.props.animationInTiming).then(() => {
-        var that = this;
-      this.props.onModalShow(that);
+      this.props.onModalShow(this);
     });
   };
 
@@ -108,8 +114,7 @@ export class ReactNativeModal extends Component {
     this.backdropRef.transitionTo({ opacity: 0 }, this.props.backdropTransitionOutTiming);
     this.contentRef[this.props.animationOut](this.props.animationOutTiming).then(() => {
       this.setState({ isVisible: false });
-        var that = this;
-      this.props.onModalHide(that);
+      this.props.onModalHide(this);
     });
   };
 
